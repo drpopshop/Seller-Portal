@@ -114,7 +114,6 @@
   <script type="text/babel">
     const { useState, useMemo, useRef, useEffect } = React;
 
-    // Complete 84 products from the "รายการสินค้า Drpopshop 2026_3" database
     const INITIAL_PRODUCTS = [
       { id: '1', sku: 'NO.1', name: 'Super Rush Black', image: 'https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/9yzxeCyJhTKhVGbynzWK/pub/IQI9xR4Or9nhwFM3AyaF.jpg', cost: 100, stock: 120, isActive: true },
       { id: '2', sku: 'NO.2', name: 'Super Rush Red', image: 'https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/7s9SCoTJyQIAAvAoucYb/pub/5EO2y828kqaN6OQv2bnX.jpg', cost: 100, stock: 95, isActive: true },
@@ -224,6 +223,127 @@
       }
       return basePrice;
     };
+
+    // Reusable, elegant swipeable item mimicking iPhone list actions (works with touches and mouse gestures)
+    function SwipeableItem({ children, onDelete, uniqueId }) {
+      const [startX, setStartX] = useState(0);
+      const [currentOffset, setCurrentOffset] = useState(0);
+      const [isSwiping, setIsSwiping] = useState(false);
+      const [isOpen, setIsOpen] = useState(false);
+      const [isDeleting, setIsDeleting] = useState(false);
+
+      const maxSwipe = 85; // Width of the red action button (px)
+
+      // Touch handlers (Mobiles/Tablets)
+      const handleTouchStart = (e) => {
+        setStartX(e.touches[0].clientX);
+        setIsSwiping(true);
+      };
+
+      const handleTouchMove = (e) => {
+        if (!isSwiping) return;
+        const currentX = e.touches[0].clientX;
+        const diffX = currentX - startX;
+        
+        let newOffset = isOpen ? -maxSwipe + diffX : diffX;
+        
+        if (newOffset > 10) newOffset = 10; // Prevent massive right-swipe
+        if (newOffset < -220) newOffset = -220; // Cap swipe maximum left-depth
+
+        setCurrentOffset(newOffset);
+      };
+
+      const handleTouchEnd = () => {
+        setIsSwiping(false);
+        // Full Swipe action trigger
+        if (currentOffset < -170) {
+          triggerFullSwipeDelete();
+        } else if (currentOffset < -45) {
+          // Snap lock open
+          setCurrentOffset(-maxSwipe);
+          setIsOpen(true);
+        } else {
+          // Snap closed
+          setCurrentOffset(0);
+          setIsOpen(false);
+        }
+      };
+
+      // Mouse event handlers (For Desktop preview compilers testing)
+      const handleMouseDown = (e) => {
+        setStartX(e.clientX);
+        setIsSwiping(true);
+      };
+
+      const handleMouseMove = (e) => {
+        if (!isSwiping) return;
+        const currentX = e.clientX;
+        const diffX = currentX - startX;
+        
+        let newOffset = isOpen ? -maxSwipe + diffX : diffX;
+        if (newOffset > 10) newOffset = 10;
+        if (newOffset < -220) newOffset = -220;
+
+        setCurrentOffset(newOffset);
+      };
+
+      const handleMouseUp = () => {
+        if (!isSwiping) return;
+        setIsSwiping(false);
+        if (currentOffset < -170) {
+          triggerFullSwipeDelete();
+        } else if (currentOffset < -45) {
+          setCurrentOffset(-maxSwipe);
+          setIsOpen(true);
+        } else {
+          setCurrentOffset(0);
+          setIsOpen(false);
+        }
+      };
+
+      const triggerFullSwipeDelete = () => {
+        setIsDeleting(true);
+        setCurrentOffset(-550); // Fluid slide off-screen left
+        setTimeout(() => {
+          onDelete();
+        }, 250);
+      };
+
+      return (
+        <div 
+          className={`relative overflow-hidden w-full transition-all duration-300 ${
+            isDeleting ? 'max-h-0 opacity-0 my-0 py-0 border-0' : 'max-h-[160px] my-1.5'
+          }`}
+        >
+          {/* Backside Layer: Apple Red Delete Action Container */}
+          <div 
+            onClick={triggerFullSwipeDelete}
+            className="absolute right-0 top-0 bottom-0 w-[85px] bg-[#ff3b30] flex flex-col items-center justify-center text-white font-bold transition-colors cursor-pointer hover:bg-[#e03126] active:bg-[#c22b20] z-10 select-none rounded-[16px]"
+          >
+            <i className="fa-solid fa-trash-can text-lg mb-1 animate-pulse"></i>
+            <span className="text-[10px] uppercase tracking-widest font-extrabold">ลบออก</span>
+          </div>
+
+          {/* Frontside Layer: Actual sliding card workspace */}
+          <div 
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ 
+              transform: `translateX(${currentOffset}px)`,
+              transition: isSwiping ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+            className="relative z-20 cursor-grab active:cursor-grabbing select-none"
+          >
+            {children}
+          </div>
+        </div>
+      );
+    }
 
     function App() {
       const [currentView, setCurrentView] = useState('home'); // 'home' | 'history' | 'inventory' | 'financial' | 'sales'
@@ -562,7 +682,9 @@
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-tagline font-bold tracking-tight text-apple-ink">Product Brand & Model</h3>
-                        <p className="text-sm text-apple-mutedText mt-0.5">Select and add active products from the 84 connected database SKUs</p>
+                        <p className="text-sm text-apple-mutedText mt-0.5">
+                          Select and add products <span className="text-apple-primary font-semibold"></span>
+                        </p>
                       </div>
                       
                       <button 
@@ -619,56 +741,57 @@
                     )}
 
                     {/* Selected Active Products Table / Display List */}
-                    <div className="space-y-3">
+                    <div className="space-y-1">
                       {selectedProducts.map((item) => (
-                        <div 
+                        <SwipeableItem 
                           key={item.uniqueId} 
-                          className="bg-apple-parchment border border-apple-hairline rounded-[16px] p-5 flex items-center justify-between gap-5 shadow-sm hover:border-[#d1d1d6] transition-all"
+                          uniqueId={item.uniqueId} 
+                          onDelete={() => handleRemoveProduct(item.uniqueId)}
                         >
-                          <div className="flex items-center gap-4">
-                            <img 
-                              src={item.product.image} 
-                              alt={item.product.name} 
-                              className="w-16 h-16 object-cover rounded-xl bg-white border border-apple-hairline shadow-sm"
-                            />
-                            <div className="space-y-0.5">
-                              <h4 className="text-base font-bold text-apple-ink tracking-tight">{item.product.name}</h4>
-                              <p className="text-xs text-apple-mutedText font-medium">
-                                {item.product.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS.</span>
-                              </p>
-                              <p className="text-xs font-bold text-apple-primary uppercase tracking-wide">
-                                ฿{calculateVolumetricTierPrice(item.qty).toLocaleString()} net
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {/* Tactile increment/decrement adjustments */}
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center border border-apple-hairline rounded-full bg-white p-0.5 shadow-sm">
-                              <button 
-                                onClick={() => handleQtyChange(item.uniqueId, -1)}
-                                className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center text-sm font-bold">{item.qty}</span>
-                              <button 
-                                onClick={() => handleQtyChange(item.uniqueId, 1)}
-                                className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
-                              >
-                                +
-                              </button>
+                          <div className="bg-apple-parchment border border-apple-hairline rounded-[16px] p-5 flex items-center justify-between gap-5 shadow-sm hover:border-[#d1d1d6] transition-all">
+                            <div className="flex items-center gap-4 min-w-0">
+                              {/* Grab Indicator for visual cue */}
+                              <div className="text-apple-mutedText/40 flex flex-col gap-0.5 px-1">
+                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
+                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
+                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
+                              </div>
+                              <img 
+                                src={item.product.image} 
+                                alt={item.product.name} 
+                                className="w-16 h-16 object-cover rounded-xl bg-white border border-apple-hairline shadow-sm pointer-events-none"
+                              />
+                              <div className="space-y-0.5 min-w-0">
+                                <h4 className="text-base font-bold text-apple-ink tracking-tight truncate">{item.product.name}</h4>
+                                <p className="text-xs text-apple-mutedText font-medium">
+                                  {item.product.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS.</span>
+                                </p>
+                                <p className="text-xs font-bold text-apple-primary uppercase tracking-wide">
+                                  ฿{calculateVolumetricTierPrice(item.qty).toLocaleString()} net
+                                </p>
+                              </div>
                             </div>
                             
-                            <button 
-                              onClick={() => handleRemoveProduct(item.uniqueId)}
-                              className="p-2.5 rounded-full hover:bg-red-50 text-apple-mutedText hover:text-[#ff3b30] active:scale-95 transition-all"
-                              title="Delete this row"
-                            >
-                              <i className="fa-solid fa-trash-can text-md"></i>
-                            </button>
+                            {/* Tactile increment/decrement adjustments */}
+                            <div className="flex items-center gap-2 shrink-0">
+                              <div className="flex items-center border border-apple-hairline rounded-full bg-white p-0.5 shadow-sm">
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleQtyChange(item.uniqueId, -1); }}
+                                  className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
+                                >
+                                  -
+                                </button>
+                                <span className="w-8 text-center text-sm font-bold">{item.qty}</span>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleQtyChange(item.uniqueId, 1); }}
+                                  className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        </SwipeableItem>
                       ))}
 
                       {selectedProducts.length === 0 && (
@@ -684,7 +807,9 @@
                     <div className="flex items-center justify-between pb-2">
                       <div>
                         <h3 className="text-tagline font-bold tracking-tight text-apple-ink">Select Free Gift</h3>
-                        <p className="text-sm text-apple-mutedText">Add promotional rewards and complimentary giveaways</p>
+                        <p className="text-sm text-apple-mutedText">
+                          Add promotional rewards <span className="text-apple-primary font-semibold"></span>
+                        </p>
                       </div>
                       
                       <button 
@@ -738,55 +863,56 @@
                     )}
 
                     {/* Selected Gifts Display Stack */}
-                    <div className="space-y-3">
+                    <div className="space-y-1">
                       {selectedGifts.map((item) => (
-                        <div 
+                        <SwipeableItem 
                           key={item.uniqueId} 
-                          className="bg-apple-parchment border border-apple-hairline rounded-[16px] p-5 flex items-center justify-between shadow-sm"
+                          uniqueId={item.uniqueId} 
+                          onDelete={() => handleRemoveGift(item.uniqueId)}
                         >
-                          <div className="flex items-center gap-4">
-                            <img 
-                              src={item.gift.image} 
-                              alt={item.gift.name} 
-                              className="w-16 h-16 object-cover rounded-xl bg-white border border-apple-hairline"
-                            />
-                            <div className="space-y-0.5">
-                              <h4 className="text-base font-bold text-apple-ink tracking-tight">{item.gift.name}</h4>
-                              <p className="text-xs text-apple-mutedText font-medium mt-0.5">
-                                {item.gift.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS.</span>
-                              </p>
-                              <p className="text-xs font-bold text-emerald-600 uppercase tracking-wide">
-                                Free Gift (Complimentary)
-                              </p>
+                          <div className="bg-apple-parchment border border-apple-hairline rounded-[16px] p-5 flex items-center justify-between shadow-sm">
+                            <div className="flex items-center gap-4 min-w-0">
+                              {/* Grab Indicator for visual cue */}
+                              <div className="text-apple-mutedText/40 flex flex-col gap-0.5 px-1">
+                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
+                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
+                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
+                              </div>
+                              <img 
+                                src={item.gift.image} 
+                                alt={item.gift.name} 
+                                className="w-16 h-16 object-cover rounded-xl bg-white border border-apple-hairline pointer-events-none"
+                              />
+                              <div className="space-y-0.5 min-w-0">
+                                <h4 className="text-base font-bold text-apple-ink tracking-tight truncate">{item.gift.name}</h4>
+                                <p className="text-xs text-apple-mutedText font-medium mt-0.5">
+                                  {item.gift.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS.</span>
+                                </p>
+                                <p className="text-xs font-bold text-emerald-600 uppercase tracking-wide">
+                                  Free Gift (Complimentary)
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 shrink-0">
+                              <div className="flex items-center border border-apple-hairline rounded-full bg-white p-0.5 shadow-sm">
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleGiftQtyChange(item.uniqueId, -1); }}
+                                  className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
+                                >
+                                  -
+                                </button>
+                                <span className="w-8 text-center text-sm font-bold">{item.qty}</span>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleGiftQtyChange(item.uniqueId, 1); }}
+                                  className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
                           </div>
-                          
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center border border-apple-hairline rounded-full bg-white p-0.5 shadow-sm">
-                              <button 
-                                onClick={() => handleGiftQtyChange(item.uniqueId, -1)}
-                                className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center text-sm font-bold">{item.qty}</span>
-                              <button 
-                                onClick={() => handleGiftQtyChange(item.uniqueId, 1)}
-                                className="w-8 h-8 flex items-center justify-center text-apple-ink font-semibold rounded-full hover:bg-apple-parchment active:scale-95 transition-all"
-                              >
-                                +
-                              </button>
-                            </div>
-
-                            <button 
-                              onClick={() => handleRemoveGift(item.uniqueId)}
-                              className="p-2.5 rounded-full hover:bg-red-50 text-apple-mutedText hover:text-[#ff3b30] active:scale-95 transition-all"
-                              title="Delete this row"
-                            >
-                              <i className="fa-solid fa-trash-can text-md"></i>
-                            </button>
-                          </div>
-                        </div>
+                        </SwipeableItem>
                       ))}
 
                       {selectedGifts.length === 0 && (
@@ -1218,7 +1344,7 @@
                           <img 
                             src={prod.image} 
                             alt={prod.name} 
-                            className="w-14 h-14 object-cover rounded-xl bg-apple-parchment border border-apple-hairline shadow-sm shrink-0" 
+                            className="w-14 h-14 object-cover rounded-xl bg-apple-parchment border border-apple-hairline shadow-sm shrink-0 font-mono" 
                           />
                           <div className="truncate">
                             <div className="flex items-center gap-2">
