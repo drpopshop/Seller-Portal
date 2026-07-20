@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drpopshop Order Generator - Premium Dashboard</title>
+  <title>Drpopshop Order Terminal - Premium Edition</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Icons (Font Awesome & Phosphor Icons) -->
+  <!-- Icons (Font Awesome) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Tailwind CSS CDN -->
@@ -37,21 +37,21 @@
               ink: '#1d1d1f',
               parchment: '#f5f5f7',
               canvas: '#ffffff',
-              hairline: '#e5e5e7',
-              mutedText: '#86868b',
+              hairline: '#e0e0e0',
+              mutedText: '#7a7a7a',
               green: '#34c759',
               actionBlue: '#0066cc',
               skyLinkBlue: '#2997ff',
-              tileDark: '#1c1c1e',
+              tileDark: '#272729',
               divider: '#f0f0f0'
             }
           },
           fontSize: {
-            'hero': ['40px', { lineHeight: '1.1', letterSpacing: '-0.2px', fontWeight: '600' }],
-            'display-lg': ['32px', { lineHeight: '1.2', letterSpacing: '-0.3px', fontWeight: '700' }],
-            'display-md': ['26px', { lineHeight: '1.3', letterSpacing: '-0.2px', fontWeight: '600' }],
-            'lead': ['22px', { lineHeight: '1.15', letterSpacing: '0.1px', fontWeight: '400' }],
-            'tagline': ['18px', { lineHeight: '1.2', letterSpacing: '0.15px', fontWeight: '600' }]
+            'hero': ['40px', { lineHeight: '1.1', letterSpacing: '-0.28px', fontWeight: '600' }],
+            'display-lg': ['34px', { lineHeight: '1.2', letterSpacing: '-0.374px', fontWeight: '600' }],
+            'display-md': ['28px', { lineHeight: '1.3', letterSpacing: '-0.2px', fontWeight: '600' }],
+            'lead': ['21px', { lineHeight: '1.15', letterSpacing: '0.231px', fontWeight: '400' }],
+            'tagline': ['18px', { lineHeight: '1.2', letterSpacing: '0px', fontWeight: '600' }]
           }
         }
       }
@@ -59,7 +59,6 @@
   </script>
 
   <style>
-    /* Premium visual utility rules following Apple specifications */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -71,10 +70,11 @@
       background-color: #f5f5f7;
       color: #1d1d1f;
       -webkit-font-smoothing: antialiased;
+      font-family: 'Inter', -apple-system, sans-serif;
     }
     .btn-active:active {
-      transform: scale(0.97);
-      transition: transform 0.1s ease;
+      transform: scale(0.95);
+      transition: transform 0.15s ease;
     }
     .dropdown-scroll::-webkit-scrollbar {
       width: 6px;
@@ -83,7 +83,7 @@
       background: #fafafc;
     }
     .dropdown-scroll::-webkit-scrollbar-thumb {
-      background-color: #d1d1d6;
+      background-color: #d2d2d7;
       border-radius: 10px;
     }
     .glass-nav {
@@ -209,22 +209,20 @@
       { id: 'g5', sku: 'FE-5', name: 'Gel', image: 'https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/9yzxeCyJhTKhVGbynzWK/pub/aiXaAcakuAvlK2kFcMYJ.jpg', cost: 50, type: 'Free' }
     ];
 
-    // Core Volumetric Tier pricing calculation
     const calculateVolumetricTierPrice = (qty) => {
       if (qty <= 0) return 0;
       const groupsOfThree = Math.floor(qty / 3);
       const remainder = qty % 3;
       
-      let basePrice = groupsOfThree * 900;
+      let price = groupsOfThree * 900;
       if (remainder === 1) {
-        basePrice += 450;
+        price += 450;
       } else if (remainder === 2) {
-        basePrice += 700;
+        price += 700;
       }
-      return basePrice;
+      return price;
     };
 
-    // Reusable, elegant swipeable item mimicking iPhone list actions (works with touches and mouse gestures)
     function SwipeableItem({ children, onDelete, uniqueId }) {
       const [startX, setStartX] = useState(0);
       const [currentOffset, setCurrentOffset] = useState(0);
@@ -232,9 +230,8 @@
       const [isOpen, setIsOpen] = useState(false);
       const [isDeleting, setIsDeleting] = useState(false);
 
-      const maxSwipe = 85; // Width of the red action button (px)
+      const maxSwipe = 85; 
 
-      // Touch handlers (Mobiles/Tablets)
       const handleTouchStart = (e) => {
         setStartX(e.touches[0].clientX);
         setIsSwiping(true);
@@ -247,29 +244,25 @@
         
         let newOffset = isOpen ? -maxSwipe + diffX : diffX;
         
-        if (newOffset > 10) newOffset = 10; // Prevent massive right-swipe
-        if (newOffset < -220) newOffset = -220; // Cap swipe maximum left-depth
+        if (newOffset > 10) newOffset = 10;
+        if (newOffset < -220) newOffset = -220;
 
         setCurrentOffset(newOffset);
       };
 
       const handleTouchEnd = () => {
         setIsSwiping(false);
-        // Full Swipe action trigger
         if (currentOffset < -170) {
           triggerFullSwipeDelete();
         } else if (currentOffset < -45) {
-          // Snap lock open
           setCurrentOffset(-maxSwipe);
           setIsOpen(true);
         } else {
-          // Snap closed
           setCurrentOffset(0);
           setIsOpen(false);
         }
       };
 
-      // Mouse event handlers (For Desktop preview compilers testing)
       const handleMouseDown = (e) => {
         setStartX(e.clientX);
         setIsSwiping(true);
@@ -303,7 +296,7 @@
 
       const triggerFullSwipeDelete = () => {
         setIsDeleting(true);
-        setCurrentOffset(-550); // Fluid slide off-screen left
+        setCurrentOffset(-550); 
         setTimeout(() => {
           onDelete();
         }, 250);
@@ -315,16 +308,118 @@
             isDeleting ? 'max-h-0 opacity-0 my-0 py-0 border-0' : 'max-h-[160px] my-1.5'
           }`}
         >
-          {/* Backside Layer: Apple Red Delete Action Container */}
+          {/* Back Action Layer */}
           <div 
             onClick={triggerFullSwipeDelete}
             className="absolute right-0 top-0 bottom-0 w-[85px] bg-[#ff3b30] flex flex-col items-center justify-center text-white font-bold transition-colors cursor-pointer hover:bg-[#e03126] active:bg-[#c22b20] z-10 select-none rounded-[16px]"
           >
             <i className="fa-solid fa-trash-can text-lg mb-1 animate-pulse"></i>
-            <span className="text-[10px] uppercase tracking-widest font-extrabold">ลบออก</span>
+            <span className="text-[10px] uppercase tracking-widest font-extrabold">Delete</span>
           </div>
 
-          {/* Frontside Layer: Actual sliding card workspace */}
+          {/* Front Sliding Container */}
+          <div 
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ 
+              transform: `translateX(${currentOffset}px)`,
+              transition: isSwiping ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+            className="relative z-20 cursor-grab active:cursor-grabbing select-none"
+          >
+            {children}
+          </div>
+        </div>
+      );
+    }
+
+    function SwipeablePriceCard({ children, onEdit }) {
+      const [startX, setStartX] = useState(0);
+      const [currentOffset, setCurrentOffset] = useState(0);
+      const [isSwiping, setIsSwiping] = useState(false);
+      const [isOpen, setIsOpen] = useState(false);
+
+      const maxSwipe = 85; 
+
+      const handleTouchStart = (e) => {
+        setStartX(e.touches[0].clientX);
+        setIsSwiping(true);
+      };
+
+      const handleTouchMove = (e) => {
+        if (!isSwiping) return;
+        const currentX = e.touches[0].clientX;
+        const diffX = currentX - startX;
+        
+        let newOffset = isOpen ? -maxSwipe + diffX : diffX;
+        
+        if (newOffset > 10) newOffset = 10;
+        if (newOffset < -120) newOffset = -120;
+
+        setCurrentOffset(newOffset);
+      };
+
+      const handleTouchEnd = () => {
+        setIsSwiping(false);
+        if (currentOffset < -45) {
+          setCurrentOffset(-maxSwipe);
+          setIsOpen(true);
+        } else {
+          setCurrentOffset(0);
+          setIsOpen(false);
+        }
+      };
+
+      const handleMouseDown = (e) => {
+        setStartX(e.clientX);
+        setIsSwiping(true);
+      };
+
+      const handleMouseMove = (e) => {
+        if (!isSwiping) return;
+        const currentX = e.clientX;
+        const diffX = currentX - startX;
+        
+        let newOffset = isOpen ? -maxSwipe + diffX : diffX;
+        if (newOffset > 10) newOffset = 10;
+        if (newOffset < -120) newOffset = -120;
+
+        setCurrentOffset(newOffset);
+      };
+
+      const handleMouseUp = () => {
+        if (!isSwiping) return;
+        setIsSwiping(false);
+        if (currentOffset < -45) {
+          setCurrentOffset(-maxSwipe);
+          setIsOpen(true);
+        } else {
+          setCurrentOffset(0);
+          setIsOpen(false);
+        }
+      };
+
+      return (
+        <div className="relative overflow-hidden w-full rounded-[18px]">
+          {/* Back Edit Action Layer (Green as requested) */}
+          <div 
+            onClick={() => {
+              onEdit();
+              setCurrentOffset(0);
+              setIsOpen(false);
+            }}
+            className="absolute right-0 top-0 bottom-0 w-[85px] bg-apple-green flex flex-col items-center justify-center text-white font-bold transition-colors cursor-pointer hover:opacity-95 active:opacity-90 z-10 select-none rounded-[18px]"
+          >
+            <i className="fa-solid fa-pen text-lg mb-1"></i>
+            <span className="text-[10px] uppercase tracking-widest font-extrabold">Edit</span>
+          </div>
+
+          {/* Front Sliding Container */}
           <div 
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -346,42 +441,33 @@
     }
 
     function App() {
-      const [currentView, setCurrentView] = useState('home'); // 'home' | 'history' | 'inventory' | 'financial' | 'sales'
-      
-      // Order metadata state
+      const [currentView, setCurrentView] = useState('home'); 
       const [orderNumber, setOrderNumber] = useState(14);
       const [timestamp, setTimestamp] = useState("JULY 15, 2026 • 03:10 AM");
-
-      // Products state (master inventory list)
       const [products, setProducts] = useState(INITIAL_PRODUCTS);
 
-      // Selected active product stack
+      // Workspace products setup
       const [selectedProducts, setSelectedProducts] = useState([
         { uniqueId: 'init-1', product: INITIAL_PRODUCTS[0], qty: 5 },
         { uniqueId: 'init-2', product: INITIAL_PRODUCTS[1], qty: 2 }
       ]);
       
-      // Selected active promotional gifts list
       const [selectedGifts, setSelectedGifts] = useState([
         { uniqueId: 'gift-init-1', gift: DRPOPSHOP_GIFTS[0], qty: 1 }
       ]);
 
-      const [discountValue, setDiscountValue] = useState(0);
+      const [customPrice, setCustomPrice] = useState(null);
+      const [isEditingPrice, setIsEditingPrice] = useState(false);
 
-      // Search & Dropdown states
       const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
       const [isGiftDropdownOpen, setIsGiftDropdownOpen] = useState(false);
       const [productSearchQuery, setProductSearchQuery] = useState('');
       const [giftSearchQuery, setGiftSearchQuery] = useState('');
-      
-      // Inventory search query
       const [inventorySearchQuery, setInventorySearchQuery] = useState('');
-
-      // Toast feedback system
       const [toastText, setToastText] = useState('');
       const [toastIcon, setToastIcon] = useState('');
 
-      // Simulated Order History logs state
+      // Transaction logs initial dataset
       const [orderHistory, setOrderHistory] = useState([
         { 
           orderNum: 12, 
@@ -404,21 +490,19 @@
       const scrollContainerRef = useRef(null);
       const utilitiesScrollRef = useRef(null);
 
-      // Standard custom notification trigger
-      const triggerToast = (msg, iconClass = "fa-solid fa-circle-check text-apple-primary-on-dark") => {
+      const triggerToast = (msg, iconClass = "fa-solid fa-circle-check text-apple-primary") => {
         setToastText(msg);
         setToastIcon(iconClass);
         setTimeout(() => setToastText(''), 3000);
       };
 
-      // Navigation handler with scroll-to-top feature
       const navigateToView = (viewName) => {
         setCurrentView(viewName);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        triggerToast(`Switched view to ${viewName.toUpperCase()}`, "fa-solid fa-compass text-sky-400");
+        triggerToast(`Navigated to ${viewName.toUpperCase()}`, "fa-solid fa-compass text-apple-primary");
       };
 
-      // Filter products for active select dropdown
+      // Search filters for product lists
       const filteredProductsForSelect = useMemo(() => {
         return products.filter(p => 
           p.isActive && (
@@ -428,19 +512,27 @@
         );
       }, [products, productSearchQuery]);
 
-      // Calculate totals
       const calculatedTotalPrice = useMemo(() => {
-        const baseProductsTotal = selectedProducts.reduce((sum, item) => {
-          return sum + calculateVolumetricTierPrice(item.qty);
-        }, 0);
-        return Math.max(0, baseProductsTotal - discountValue);
-      }, [selectedProducts, discountValue]);
+        const totalQty = selectedProducts.reduce((sum, item) => sum + item.qty, 0);
+        return calculateVolumetricTierPrice(totalQty);
+      }, [selectedProducts]);
+
+      const finalDisplayPrice = useMemo(() => {
+        return customPrice !== null ? customPrice : calculatedTotalPrice;
+      }, [customPrice, calculatedTotalPrice]);
 
       const totalUnitsCount = useMemo(() => {
         return selectedProducts.reduce((sum, item) => sum + item.qty, 0);
       }, [selectedProducts]);
 
-      // Scroll helpers
+      const regularRetailPrice = useMemo(() => {
+        return selectedProducts.reduce((sum, item) => sum + (item.qty * 450), 0);
+      }, [selectedProducts]);
+
+      const totalSavings = useMemo(() => {
+        return Math.max(0, regularRetailPrice - finalDisplayPrice);
+      }, [regularRetailPrice, finalDisplayPrice]);
+
       const scrollDashboard = (direction) => {
         if (scrollContainerRef.current) {
           const scrollAmount = 300;
@@ -461,7 +553,6 @@
         }
       };
 
-      // Multi-product picker actions
       const handleAddProduct = (prod) => {
         if (prod.stock <= 0) {
           triggerToast(`Warning: ${prod.name} is currently out of stock!`, "fa-solid fa-triangle-exclamation text-yellow-500");
@@ -472,7 +563,7 @@
           const updated = [...selectedProducts];
           updated[existingIndex].qty += 1;
           setSelectedProducts(updated);
-          triggerToast(`Incremented ${prod.name} quantity to ${updated[existingIndex].qty}`);
+          triggerToast(`Increased ${prod.name} to ${updated[existingIndex].qty} units`);
         } else {
           setSelectedProducts([
             ...selectedProducts,
@@ -499,14 +590,13 @@
         }));
       };
 
-      // Promotional Gift actions
       const handleAddGift = (gift) => {
         const existingIndex = selectedGifts.findIndex(item => item.gift.id === gift.id);
         if (existingIndex > -1) {
           const updated = [...selectedGifts];
           updated[existingIndex].qty += 1;
           setSelectedGifts(updated);
-          triggerToast(`Incremented free ${gift.name} quantity to ${updated[existingIndex].qty}`);
+          triggerToast(`Increased free ${gift.name} to ${updated[existingIndex].qty}`);
         } else {
           setSelectedGifts([
             ...selectedGifts,
@@ -530,10 +620,9 @@
 
       const handleRemoveGift = (uniqueId) => {
         setSelectedGifts(selectedGifts.filter(item => item.uniqueId !== uniqueId));
-        triggerToast('Removed gift selection');
+        triggerToast('Removed gift from workspace');
       };
 
-      // Active status switch toggle
       const handleToggleProductActive = (prodId) => {
         setProducts(prev => prev.map(p => {
           if (p.id === prodId) {
@@ -545,7 +634,6 @@
         }));
       };
 
-      // Tactile Stock Updates
       const handleUpdateStock = (prodId, amount) => {
         setProducts(prev => prev.map(p => {
           if (p.id === prodId) {
@@ -557,10 +645,9 @@
         }));
       };
 
-      // Confirming Order & Clearing workspace logic
       const handleConfirmOrder = () => {
         if (selectedProducts.length === 0) {
-          triggerToast("Cannot confirm empty order list", "fa-solid fa-circle-exclamation text-red-500");
+          triggerToast("Cannot save empty order lists", "fa-solid fa-circle-exclamation text-red-500");
           return;
         }
 
@@ -571,21 +658,20 @@
         }
 
         const itemsSummaryText = selectedProducts.map(item => `${item.product.name} x${item.qty}`).join(', ');
-        const giftsSummaryText = selectedGifts.map(item => `${item.gift.name} x${item.qty}`).join(', ') || 'No Gifts';
+        const giftsSummaryText = selectedGifts.map(item => `${item.gift.name} x${item.qty}`).join(', ') || 'No complimentary items';
 
         const newLog = {
           orderNum: orderNumber,
           timestamp: timestamp,
           itemsCount: totalUnitsCount,
-          totalPrice: calculatedTotalPrice,
+          totalPrice: finalDisplayPrice,
           itemsList: itemsSummaryText,
           giftsList: giftsSummaryText
         };
 
         setOrderHistory(prev => [newLog, ...prev]);
-        triggerToast(`Order #${orderNumber} successfully processed!`, "fa-solid fa-circle-check text-green-500");
+        triggerToast(`Order #${orderNumber} logged successfully!`, "fa-solid fa-circle-check text-green-500");
 
-        // Subtract quantity from master database
         setProducts(prev => prev.map(p => {
           const orderedItem = selectedProducts.find(sp => sp.product.id === p.id);
           if (orderedItem) {
@@ -597,7 +683,8 @@
         setTimeout(() => {
           setSelectedProducts([]);
           setSelectedGifts([]);
-          setDiscountValue(0);
+          setCustomPrice(null);
+          setIsEditingPrice(false);
           setOrderNumber(prev => prev + 1);
 
           const now = new Date();
@@ -616,7 +703,6 @@
       return (
         <div className="min-h-screen bg-apple-parchment text-apple-ink font-sans antialiased pb-24">
           
-          {/* Navigation Bar Header (Minimal luxury look, similar to Apple subnav) */}
           <nav className="h-14 bg-black/95 text-white flex items-center justify-between px-6 sticky top-0 z-50 shadow-md">
             <div className="flex items-center gap-6">
               <span onClick={() => navigateToView('home')} className="text-sm font-semibold tracking-tight hover:opacity-80 cursor-pointer flex items-center gap-2">
@@ -625,7 +711,7 @@
               </span>
             </div>
             <div className="flex items-center gap-6 text-xs text-[#b8b8bb]">
-              <span className="hidden md:inline font-mono">LIVE CONNECTED VERSION 2026.3</span>
+              <span className="hidden md:inline font-mono text-[10px]">LIVE CONNECTED PORTAL v2026.3</span>
               <button 
                 onClick={() => navigateToView('home')} 
                 className={`hover:text-white transition-all font-medium ${currentView === 'home' ? 'text-apple-skyLinkBlue font-semibold' : ''}`}
@@ -636,36 +722,35 @@
                 onClick={() => navigateToView('history')} 
                 className={`hover:text-white transition-all font-medium ${currentView === 'history' ? 'text-apple-skyLinkBlue font-semibold' : ''}`}
               >
-                History Logs
+                Logs
               </button>
               <button 
                 onClick={() => navigateToView('inventory')} 
                 className={`hover:text-white transition-all font-medium ${currentView === 'inventory' ? 'text-apple-skyLinkBlue font-semibold' : ''}`}
               >
-                Inventory System
+                Stocks
               </button>
             </div>
           </nav>
 
-          {/* Toast Notification Box */}
+          {/* Toast notifications portal */}
           {toastText && (
-            <div className="fixed top-16 left-1/2 -translate-x-1/2 bg-apple-ink/95 backdrop-blur-md text-white text-caption px-6 py-3.5 rounded-full shadow-2xl z-50 transition-all flex items-center gap-3 border border-white/10 animate-bounce">
+            <div className="fixed top-16 left-1/2 -translate-x-1/2 bg-apple-ink/95 backdrop-blur-md text-white text-xs px-6 py-3.5 rounded-full shadow-2xl z-50 transition-all flex items-center gap-3 border border-white/10 animate-bounce">
               <i className={toastIcon}></i>
               <span className="font-semibold tracking-tight">{toastText}</span>
             </div>
           )}
 
-          {/* View Dispatcher Container */}
           <main className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
-            {/* ================= VIEW 1: HOME WORKSPACE VIEW ================= */}
+            {/* ================= VIEW 1: MAIN TERMINAL WORKSPACE ================= */}
             {currentView === 'home' && (
               <div className="space-y-12 fade-in">
                 
-                {/* Active Order Builder Container Card */}
+                {/* Active Workspace Builder container */}
                 <section className="bg-white border border-apple-hairline rounded-[24px] p-6 lg:p-10 space-y-8 max-w-[1020px] mx-auto shadow-sm">
                   
-                  {/* Order Metadata Block */}
+                  {/* Apple styled Order Title & Utilities slider-style controllers */}
                   <div className="flex items-center justify-between pb-6 border-b border-apple-hairline">
                     <div className="space-y-1">
                       <h1 className="text-display-lg font-bold text-apple-ink tracking-tight">
@@ -675,16 +760,38 @@
                         {timestamp}
                       </div>
                     </div>
+                    
+                    {/* Apple utilities-style separate circle controls (no middle number) */}
+                    <div className="flex gap-2 shrink-0">
+                      <button 
+                        onClick={() => {
+                          setOrderNumber(prev => Math.max(1, prev - 1));
+                          triggerToast(`Decremented Order to #${Math.max(1, orderNumber - 1)}`, "fa-solid fa-chevron-left text-apple-primary");
+                        }}
+                        className="w-10 h-10 rounded-full border border-apple-hairline bg-white flex items-center justify-center text-apple-ink hover:bg-apple-parchment transition-colors btn-active shadow-sm animate-fade-in"
+                        title="Decrement Order Number"
+                      >
+                        <i className="fa-solid fa-chevron-left text-sm"></i>
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setOrderNumber(prev => prev + 1);
+                          triggerToast(`Incremented Order to #${orderNumber + 1}`, "fa-solid fa-chevron-right text-apple-primary");
+                        }}
+                        className="w-10 h-10 rounded-full border border-apple-hairline bg-white flex items-center justify-center text-apple-ink hover:bg-apple-parchment transition-colors btn-active shadow-sm animate-fade-in"
+                        title="Increment Order Number"
+                      >
+                        <i className="fa-solid fa-chevron-right text-sm"></i>
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Product Brand & Model Section */}
+                  {/* Active Products Section */}
                   <div className="space-y-5 relative">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-tagline font-bold tracking-tight text-apple-ink">Product Brand & Model</h3>
-                        <p className="text-sm text-apple-mutedText mt-0.5">
-                          Select and add products <span className="text-apple-primary font-semibold"></span>
-                        </p>
+                        <h3 className="text-tagline font-bold tracking-tight text-apple-ink">Product Selection</h3>
+                        <p className="text-sm text-apple-mutedText mt-0.5">Select and add catalog products below</p>
                       </div>
                       
                       <button 
@@ -697,23 +804,22 @@
                             ? 'border-apple-primary bg-apple-primary text-white shadow-md' 
                             : 'border-apple-ink bg-white text-apple-ink hover:bg-apple-parchment'
                         }`}
-                        title="Add products"
+                        title="Add products to Workspace"
                       >
                         <i className={`fa-solid ${isProductDropdownOpen ? 'fa-minus' : 'fa-plus'} text-sm`}></i>
                       </button>
                     </div>
 
-                    {/* Searchable Product Popover Dropdown */}
+                    {/* Highly streamlined search product dropdown */}
                     {isProductDropdownOpen && (
                       <div className="absolute top-[68px] left-0 right-0 bg-white border border-apple-hairline rounded-[18px] p-4 z-40 space-y-3 shadow-xl max-h-[380px] flex flex-col">
                         <div className="flex items-center justify-between border-b pb-3 gap-4">
-                          <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider">AVAILABLE DRPOPSHOP SKUS ({filteredProductsForSelect.length})</span>
                           <input 
                             type="text" 
-                            placeholder="Type SKU or Product Name..." 
+                            placeholder="Search catalog by product name or SKU..." 
                             value={productSearchQuery}
                             onChange={(e) => setProductSearchQuery(e.target.value)}
-                            className="text-sm px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-apple-primary w-64 bg-apple-parchment border-apple-hairline"
+                            className="text-sm px-4 py-2 w-full border rounded-full focus:outline-none focus:ring-2 focus:ring-apple-primary bg-apple-parchment border-apple-hairline"
                           />
                         </div>
                         <div className="space-y-1 overflow-y-auto dropdown-scroll flex-1 pr-1">
@@ -726,21 +832,21 @@
                               <img src={prod.image} className="w-12 h-12 object-cover rounded-lg bg-white border border-apple-hairline" />
                               <div className="flex-1">
                                 <div className="text-sm font-semibold text-apple-ink">{prod.name}</div>
-                                <div className="text-xs text-apple-mutedText">{prod.sku} • 1 item: ฿450 base • Stock left: {prod.stock}</div>
+                                <div className="text-xs text-apple-mutedText">{prod.sku} • Stock remaining: {prod.stock}</div>
                               </div>
                               <span className="text-xs bg-apple-primary/10 text-apple-primary font-bold px-3 py-1.5 rounded-full">
-                                + Add Row
+                                + Add
                               </span>
                             </button>
                           ))}
                           {filteredProductsForSelect.length === 0 && (
-                            <div className="text-center py-6 text-sm text-apple-mutedText">No products matching the query can be found.</div>
+                            <div className="text-center py-6 text-sm text-apple-mutedText">No matching products found in database.</div>
                           )}
                         </div>
                       </div>
                     )}
 
-                    {/* Selected Active Products Table / Display List */}
+                    {/* Active Selected Products List */}
                     <div className="space-y-1">
                       {selectedProducts.map((item) => (
                         <SwipeableItem 
@@ -750,12 +856,6 @@
                         >
                           <div className="bg-apple-parchment border border-apple-hairline rounded-[16px] p-5 flex items-center justify-between gap-5 shadow-sm hover:border-[#d1d1d6] transition-all">
                             <div className="flex items-center gap-4 min-w-0">
-                              {/* Grab Indicator for visual cue */}
-                              <div className="text-apple-mutedText/40 flex flex-col gap-0.5 px-1">
-                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
-                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
-                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
-                              </div>
                               <img 
                                 src={item.product.image} 
                                 alt={item.product.name} 
@@ -764,15 +864,14 @@
                               <div className="space-y-0.5 min-w-0">
                                 <h4 className="text-base font-bold text-apple-ink tracking-tight truncate">{item.product.name}</h4>
                                 <p className="text-xs text-apple-mutedText font-medium">
-                                  {item.product.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS.</span>
+                                  {item.product.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS</span>
                                 </p>
-                                <p className="text-xs font-bold text-apple-primary uppercase tracking-wide">
-                                  ฿{calculateVolumetricTierPrice(item.qty).toLocaleString()} net
+                                <p className="text-xs font-semibold text-apple-primary">
+                                  Price per bottle: ฿450
                                 </p>
                               </div>
                             </div>
                             
-                            {/* Tactile increment/decrement adjustments */}
                             <div className="flex items-center gap-2 shrink-0">
                               <div className="flex items-center border border-apple-hairline rounded-full bg-white p-0.5 shadow-sm">
                                 <button 
@@ -796,20 +895,18 @@
 
                       {selectedProducts.length === 0 && (
                         <div className="text-center py-12 text-apple-mutedText text-sm border border-dashed border-apple-hairline rounded-[16px] bg-apple-parchment px-4">
-                          No active items added to compile. Click the (+) button on the right to build your list.
+                          No active items added to terminal. Click the (+) button above to browse catalog.
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Choose Free Gifts Section */}
+                  {/* Complimentary Gifts Section */}
                   <div className="space-y-4 relative pt-4 border-t border-apple-hairline">
                     <div className="flex items-center justify-between pb-2">
                       <div>
                         <h3 className="text-tagline font-bold tracking-tight text-apple-ink">Select Free Gift</h3>
-                        <p className="text-sm text-apple-mutedText">
-                          Add promotional rewards <span className="text-apple-primary font-semibold"></span>
-                        </p>
+                        <p className="text-sm text-apple-mutedText">Attach promotional rewards to the customer session</p>
                       </div>
                       
                       <button 
@@ -828,17 +925,16 @@
                       </button>
                     </div>
 
-                    {/* Gift Selection Dropdown */}
+                    {/* Highly streamlined freebie dropdown */}
                     {isGiftDropdownOpen && (
                       <div className="absolute top-[68px] left-0 right-0 bg-white border border-apple-hairline rounded-[18px] p-4 z-40 space-y-3 shadow-xl max-h-[300px] flex flex-col">
                         <div className="flex items-center justify-between border-b pb-3 gap-4">
-                          <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider">CHOOSE FREEBIE ({DRPOPSHOP_GIFTS.length})</span>
                           <input 
                             type="text" 
-                            placeholder="Type Freebie Name..." 
+                            placeholder="Search promotional giveaways..." 
                             value={giftSearchQuery}
                             onChange={(e) => setGiftSearchQuery(e.target.value)}
-                            className="text-sm px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-apple-primary w-64 bg-apple-parchment border-apple-hairline"
+                            className="text-sm px-4 py-2 w-full border rounded-full focus:outline-none focus:ring-2 focus:ring-apple-primary bg-apple-parchment border-apple-hairline"
                           />
                         </div>
                         <div className="space-y-1 overflow-y-auto dropdown-scroll flex-1 pr-1">
@@ -851,10 +947,10 @@
                               <img src={gift.image} className="w-12 h-12 object-cover rounded-lg bg-white border border-apple-hairline" />
                               <div className="flex-1">
                                 <div className="text-sm font-semibold text-apple-ink">{gift.name}</div>
-                                <div className="text-xs text-apple-mutedText">{gift.sku} • {gift.type} Reward</div>
+                                <div className="text-xs text-apple-mutedText">{gift.sku} • {gift.type} Giveaway</div>
                               </div>
                               <span className="text-xs bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-full">
-                                + Free Add
+                                + Free
                               </span>
                             </button>
                           ))}
@@ -862,7 +958,7 @@
                       </div>
                     )}
 
-                    {/* Selected Gifts Display Stack */}
+                    {/* Selected Gifts List */}
                     <div className="space-y-1">
                       {selectedGifts.map((item) => (
                         <SwipeableItem 
@@ -872,12 +968,6 @@
                         >
                           <div className="bg-apple-parchment border border-apple-hairline rounded-[16px] p-5 flex items-center justify-between shadow-sm">
                             <div className="flex items-center gap-4 min-w-0">
-                              {/* Grab Indicator for visual cue */}
-                              <div className="text-apple-mutedText/40 flex flex-col gap-0.5 px-1">
-                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
-                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
-                                <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>
-                              </div>
                               <img 
                                 src={item.gift.image} 
                                 alt={item.gift.name} 
@@ -886,10 +976,10 @@
                               <div className="space-y-0.5 min-w-0">
                                 <h4 className="text-base font-bold text-apple-ink tracking-tight truncate">{item.gift.name}</h4>
                                 <p className="text-xs text-apple-mutedText font-medium mt-0.5">
-                                  {item.gift.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS.</span>
+                                  {item.gift.sku} | <span className="font-bold text-apple-ink">{item.qty} PCS</span>
                                 </p>
                                 <p className="text-xs font-bold text-emerald-600 uppercase tracking-wide">
-                                  Free Gift (Complimentary)
+                                  Complimentary Benefit
                                 </p>
                               </div>
                             </div>
@@ -917,78 +1007,92 @@
 
                       {selectedGifts.length === 0 && (
                         <div className="text-center py-8 text-apple-mutedText text-sm border border-dashed border-apple-hairline rounded-[16px] bg-apple-parchment">
-                          No promotional rewards requested. Click the (+) button above to select.
+                          No promotional freebies added. Click the (+) button above to add rewards.
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Apply Discount Section */}
-                  <div className="space-y-4 pt-6 border-t border-apple-hairline">
-                    <h3 className="text-xs font-bold tracking-widest text-apple-mutedText uppercase">APPLY MAX DISCOUNT</h3>
-                    <div className="grid grid-cols-3 gap-4">
-                      {[
-                        { label: '0 THB', value: 0 },
-                        { label: '60 THB', value: 60 },
-                        { label: '100 THB', value: 100 }
-                      ].map((discount) => {
-                        const isSelected = discountValue === discount.value;
-                        return (
-                          <button
-                            key={discount.value}
-                            onClick={() => {
-                              setDiscountValue(discount.value);
-                              triggerToast(`Applied Discount Plan: -฿${discount.value}`, "fa-solid fa-tag text-emerald-500");
-                            }}
-                            className={`h-14 rounded-full text-base font-semibold tracking-tight transition-all active:scale-95 ${
-                              isSelected 
-                                ? 'bg-apple-primary text-white shadow-lg shadow-apple-primary/20' 
-                                : 'bg-apple-parchment text-apple-ink hover:bg-[#e8e8ed]'
-                            }`}
-                          >
-                            {discount.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Total Payment Calculation Screen */}
+                  {/* Swipe-to-Edit Price Card Container */}
                   <div className="space-y-6 pt-6 border-t border-apple-hairline">
-                    <div className="bg-[#f5f5f7] rounded-[18px] p-8 text-center space-y-2">
-                      <div className="text-xs font-bold tracking-widest text-apple-mutedText uppercase">
-                        ESTIMATED TOTAL PAYMENT
-                      </div>
-                      <div className="text-[11px] text-[#86868b] italic">
-                        *Calculated dynamically based on volumetric tier pricing matrix rules
-                      </div>
-                      <div className="text-[44px] font-extrabold text-apple-ink tracking-tight py-2 leading-none">
-                        ฿{calculatedTotalPrice.toLocaleString()}
-                      </div>
-                      
-                      <div className="text-sm font-semibold text-apple-primary">
-                        {totalUnitsCount === 0 ? (
-                          <span>0 units active (฿0.00)</span>
+                    
+                    <SwipeablePriceCard onEdit={() => setIsEditingPrice(true)}>
+                      <div className="bg-[#f5f5f7] rounded-[18px] p-8 text-center space-y-4 relative">
+                        <div className="text-xs font-bold tracking-widest text-apple-mutedText uppercase">
+                          ESTIMATED TOTAL PAYMENT
+                        </div>
+                        
+                        {!isEditingPrice ? (
+                          <div className="text-[44px] font-extrabold text-apple-ink tracking-tight leading-none">
+                            ฿{finalDisplayPrice.toLocaleString()}
+                          </div>
                         ) : (
-                          <span>{totalUnitsCount} active units in buffer (฿{calculatedTotalPrice.toFixed(2)})</span>
+                          <div className="flex flex-col items-center gap-2 max-w-xs mx-auto">
+                            <div className="flex items-center gap-2 justify-center">
+                              <span className="text-lg font-bold text-apple-mutedText">฿</span>
+                              <input 
+                                type="number" 
+                                value={customPrice !== null ? customPrice : calculatedTotalPrice}
+                                onChange={(e) => setCustomPrice(Number(e.target.value))}
+                                className="w-32 px-3 py-1 text-center border border-apple-hairline rounded-md text-apple-ink font-semibold focus:outline-none focus:ring-2 focus:ring-apple-primary bg-white text-lg"
+                                placeholder="Price"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => setIsEditingPrice(false)}
+                                className="bg-apple-green text-white px-4 py-1.5 rounded-full text-xs font-bold hover:opacity-90 active:scale-95 transition-all"
+                              >
+                                Done
+                              </button>
+                              {customPrice !== null && (
+                                <button 
+                                  onClick={() => { setCustomPrice(null); setIsEditingPrice(false); }}
+                                  className="bg-apple-ink text-white px-4 py-1.5 rounded-full text-xs font-bold hover:opacity-90 active:scale-95 transition-all"
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         )}
+                        
+                        {/* Summary breakdown details (hidden green tab box, keeping raw savings text) */}
+                        <div className="max-w-md mx-auto pt-2 text-xs text-apple-mutedText leading-relaxed space-y-1 border-t border-apple-hairline/60">
+                          <div className="flex justify-between font-medium">
+                            <span>Combined Total Units:</span>
+                            <span className="font-bold text-apple-ink">{totalUnitsCount} PCS</span>
+                          </div>
+                          <div className="flex justify-between font-medium">
+                            <span>Standard Retail Sum:</span>
+                            <span>฿{regularRetailPrice.toLocaleString()}</span>
+                          </div>
+                          {totalSavings > 0 && (
+                            <div className="flex justify-between font-bold text-apple-green mt-1">
+                              <span>Package Savings:</span>
+                              <span>-฿{totalSavings.toLocaleString()}</span>
+                            </div>
+                          )}
+                          <p className="text-[10px] text-[#86868b] italic text-center pt-2">
+                            *Swipe left on this card to manually adjust or override the final pricing.
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    </SwipeablePriceCard>
 
                     <button
                       id="confirm-order-btn"
                       onClick={handleConfirmOrder}
                       className="w-full h-14 bg-apple-primary hover:bg-apple-focus active:scale-[0.98] transition-all text-white font-semibold text-[17px] rounded-full flex items-center justify-center gap-2.5 shadow-md shadow-apple-primary/20 btn-active"
                     >
-                      <i className="fa-solid fa-file-invoice"></i>
+                      <i className="fa-solid fa-file-invoice animate-pulse"></i>
                       Confirm Order & Save to Logs
                     </button>
                   </div>
 
                 </section>
 
-                {/* ================= PREMIUM ECOSYSTEM / Explore Our Utilities ================= */}
-                {/* Visual design exact match to TPZOOMCAR layout specifications */}
+                {/* ================= PREMIUM ECOSYSTEM SECTIONS ================= */}
                 <section className="space-y-6 max-w-[1020px] mx-auto pt-4">
                   <div className="flex items-center justify-between px-2">
                     <div>
@@ -996,38 +1100,37 @@
                       <h2 className="text-display-md text-apple-ink font-sans tracking-tight leading-tight">Explore Our Utilities</h2>
                     </div>
                     
-                    {/* Sliding track controllers */}
                     <div className="flex gap-2">
                       <button 
                         onClick={() => scrollUtilities('left')}
                         className="w-10 h-10 rounded-full border border-apple-hairline bg-white flex items-center justify-center text-apple-ink hover:bg-apple-parchment transition-colors btn-active"
-                        aria-label="Previous service"
+                        aria-label="Previous page"
                       >
                         <i className="fa-solid fa-chevron-left text-sm"></i>
                       </button>
                       <button 
                         onClick={() => scrollUtilities('right')}
                         className="w-10 h-10 rounded-full border border-apple-hairline bg-white flex items-center justify-center text-apple-ink hover:bg-apple-parchment transition-colors btn-active"
-                        aria-label="Next service"
+                        aria-label="Next page"
                       >
                         <i className="fa-solid fa-chevron-right text-sm"></i>
                       </button>
                     </div>
                   </div>
 
-                  {/* Horizontal visual sliders matching TPZOOMCAR's 450px height styling */}
+                  {/* Horizon scrolling tiles */}
                   <div 
                     ref={utilitiesScrollRef}
                     className="flex gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-6 scroll-smooth"
                   >
                     
-                    {/* UTILITY CARD 1: Order History (Light Canvas) */}
+                    {/* UTILITY CARD 1: History Logs */}
                     <div className="snap-start shrink-0 w-[85vw] md:w-[450px] lg:w-[480px] bg-white rounded-[24px] p-8 md:p-10 border border-apple-hairline flex flex-col justify-between h-[450px] relative overflow-hidden group">
                       <div>
                         <h3 className="text-tagline text-apple-primary font-semibold mb-2">Order History Logs</h3>
-                        <h4 className="text-display-lg text-apple-ink font-sans tracking-tight leading-tight mb-4">ประวัติการสร้างออเดอร์<br />รวมออเดอร์ทั้งหมด</h4>
+                        <h4 className="text-display-lg text-apple-ink font-sans tracking-tight leading-tight mb-4">Complete Transaction Records</h4>
                         <p className="text-sm text-apple-mutedText leading-relaxed max-w-[320px]">
-                          View successfully completed sessions and transaction receipts recorded in this database cycle.
+                          Review successfully processed order forms and client summaries stored during this terminal session.
                         </p>
                       </div>
                       <i className="fa-solid fa-receipt absolute bottom-8 right-8 text-8xl text-apple-ink/5 group-hover:translate-x-[-10px] group-hover:rotate-3 transition-transform duration-500"></i>
@@ -1041,13 +1144,13 @@
                       </div>
                     </div>
 
-                    {/* UTILITY CARD 2: Inventory System (Premium Charcoal Dark Canvas) */}
+                    {/* UTILITY CARD 2: Warehouse Inventory */}
                     <div className="snap-start shrink-0 w-[85vw] md:w-[450px] lg:w-[480px] bg-apple-tileDark text-white rounded-[24px] p-8 md:p-10 flex flex-col justify-between h-[450px] relative overflow-hidden group">
                       <div>
                         <h3 className="text-tagline text-apple-skyLinkBlue font-semibold mb-2">Warehouse & Inventory</h3>
-                        <h4 className="text-display-lg text-white font-sans tracking-tight leading-tight mb-4">รายงานการคลังสินค้า<br />ปรับจำนวนสต็อกสินค้า</h4>
+                        <h4 className="text-display-lg text-white font-sans tracking-tight leading-tight mb-4">Real-Time Stock Management</h4>
                         <p className="text-sm text-white/70 leading-relaxed max-w-[320px]">
-                          Monitor total catalog counts, adjust stock levels via fine incremental buttons, and manage operational product statuses.
+                          Monitor total catalog counts, adjust stock levels via fine incremental buttons, and manage global product availability.
                         </p>
                       </div>
                       <i className="fa-solid fa-boxes-stacked absolute bottom-8 right-8 text-8xl text-white/5 group-hover:translate-y-[-8px] group-hover:rotate-[-6deg] transition-transform duration-500"></i>
@@ -1061,14 +1164,14 @@
                       </div>
                     </div>
 
-                    {/* UTILITY CARD 3: Financial Summary (Light Canvas) */}
+                    {/* UTILITY CARD 3: Financial Analytics */}
                     <div className="snap-start shrink-0 w-[85vw] md:w-[450px] lg:w-[480px] bg-white rounded-[24px] p-8 md:p-10 border border-apple-hairline flex flex-col justify-between h-[450px] relative overflow-hidden group">
                       <div>
-                        <span className="bg-apple-primary/10 text-apple-primary text-[10px] px-2.5 py-1 rounded-full font-bold inline-block mb-3">COMING SOON</span>
+                        <span className="bg-apple-primary/10 text-apple-primary text-[10px] px-2.5 py-1 rounded-full font-bold inline-block mb-3">DEVELOPMENT PHASE</span>
                         <h3 className="text-tagline text-apple-primary font-semibold mb-1">Financial Analysis</h3>
-                        <h4 className="text-display-lg text-apple-ink font-sans tracking-tight leading-tight mb-4">สรุปการเงิน ค่าใช้จ่าย<br />แผนงบประมาณองค์กร</h4>
+                        <h4 className="text-display-lg text-apple-ink font-sans tracking-tight leading-tight mb-4">Corporate Budget & Profits</h4>
                         <p className="text-sm text-apple-mutedText leading-relaxed max-w-[320px]">
-                          Automated cost-revenue calculator charts, marginal projections, and operational expense logs.
+                          Analytical summaries detailing net profits, operational expenditures, and monthly budget logs.
                         </p>
                       </div>
                       <i className="fa-solid fa-chart-line absolute bottom-8 right-8 text-8xl text-apple-ink/5 group-hover:translate-x-[5px] group-hover:rotate-6 transition-transform duration-500"></i>
@@ -1077,19 +1180,19 @@
                           onClick={() => navigateToView('financial')}
                           className="bg-apple-ink hover:bg-black text-white px-6 py-2.5 rounded-full text-xs font-semibold btn-active transition-all"
                         >
-                          Explore Dashboard
+                          Explore Financials
                         </button>
                       </div>
                     </div>
 
-                    {/* UTILITY CARD 4: Sales Performance (Charcoal Dark Canvas) */}
+                    {/* UTILITY CARD 4: Sales Projections */}
                     <div className="snap-start shrink-0 w-[85vw] md:w-[450px] lg:w-[480px] bg-apple-tileDark text-white rounded-[24px] p-8 md:p-10 flex flex-col justify-between h-[450px] relative overflow-hidden group">
                       <div>
-                        <span className="bg-white/10 text-white text-[10px] px-2.5 py-1 rounded-full font-bold inline-block mb-3">COMING SOON</span>
-                        <h3 className="text-tagline text-apple-skyLinkBlue font-semibold mb-1">Sales Projections</h3>
-                        <h4 className="text-display-lg text-white font-sans tracking-tight leading-tight mb-4">สรุปรายงานยอดขาย<br />วิเคราะห์กลุ่มเป้าหมาย</h4>
+                        <span className="bg-white/10 text-white text-[10px] px-2.5 py-1 rounded-full font-bold inline-block mb-3">SIMULATION ONLY</span>
+                        <h3 className="text-tagline text-apple-skyLinkBlue font-semibold mb-1">Sales Performance</h3>
+                        <h4 className="text-display-lg text-white font-sans tracking-tight leading-tight mb-4">Projections & Audience Analytics</h4>
                         <p className="text-sm text-white/70 leading-relaxed max-w-[320px]">
-                          Track itemized transaction velocity, product performance graphs, and target goal achievement levels.
+                          Evaluate itemized transaction speeds, seasonal product performances, and visual sales targets.
                         </p>
                       </div>
                       <i className="fa-solid fa-magnifying-glass-chart absolute bottom-8 right-8 text-8xl text-white/5 group-hover:scale-105 transition-transform duration-500"></i>
@@ -1106,12 +1209,12 @@
                   </div>
                 </section>
 
-                {/* Session Workspace Statistics Sliders */}
+                {/* Session statistics overview */}
                 <section className="space-y-5 max-w-[1020px] mx-auto pt-4">
                   <div className="flex items-center justify-between px-2">
                     <div>
                       <h3 className="text-2xl font-bold tracking-tight text-apple-ink">Workspace Summary</h3>
-                      <p className="text-sm text-apple-mutedText font-medium">Real-time operational metadata overview</p>
+                      <p className="text-sm text-apple-mutedText font-medium">Real-time terminal environment parameters</p>
                     </div>
                     
                     <div className="flex gap-2">
@@ -1132,34 +1235,27 @@
 
                   <div 
                     ref={scrollContainerRef}
-                    className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 px-2 no-scrollbar scrollbar-none"
+                    className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 px-2 no-scrollbar"
                   >
-                    
-                    {/* Stat Card 1 */}
+                    {/* Stat Cards */}
                     <div className="bg-white border border-apple-hairline rounded-[20px] p-6 min-w-[290px] flex-1 snap-start transition-all shadow-sm">
                       <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider">Total Session Orders</span>
                       <div className="mt-4 flex items-baseline gap-2">
-                        <span className="text-4xl font-bold text-apple-ink tracking-tight">
-                          {orderHistory.length}
-                        </span>
-                        <span className="text-sm text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">+100% Session</span>
+                        <span className="text-4xl font-bold text-apple-ink tracking-tight">{orderHistory.length}</span>
+                        <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">+100% active</span>
                       </div>
-                      <p className="text-xs text-apple-mutedText mt-3">Active processed orders inside this browser window</p>
+                      <p className="text-xs text-apple-mutedText mt-3">Completed orders written to session buffer</p>
                     </div>
 
-                    {/* Stat Card 2 */}
                     <div className="bg-white border border-apple-hairline rounded-[20px] p-6 min-w-[290px] flex-1 snap-start transition-all shadow-sm">
-                      <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider">SKU Database</span>
+                      <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider">SKU Database Connection</span>
                       <div className="mt-4 flex items-baseline gap-2">
-                        <span className="text-4xl font-bold text-apple-ink tracking-tight">
-                          {products.length}
-                        </span>
+                        <span className="text-4xl font-bold text-apple-ink tracking-tight">{products.length}</span>
                         <span className="text-xs text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-full">Connected</span>
                       </div>
                       <p className="text-xs text-apple-mutedText mt-3">Direct link with Drpopshop 2026 SKU set</p>
                     </div>
 
-                    {/* Stat Card 3 */}
                     <div className="bg-white border border-apple-hairline rounded-[20px] p-6 min-w-[290px] flex-1 snap-start transition-all shadow-sm">
                       <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider">Available Stock Level</span>
                       <div className="mt-4 flex items-baseline gap-2">
@@ -1169,27 +1265,22 @@
                       <p className="text-xs text-apple-mutedText mt-3">Physical warehouse inventory safety rate</p>
                     </div>
 
-                    {/* Stat Card 4 */}
                     <div className="bg-white border border-apple-hairline rounded-[20px] p-6 min-w-[290px] flex-1 snap-start transition-all shadow-sm">
                       <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider">Live Buffer Value</span>
                       <div className="mt-4 flex items-baseline gap-2">
-                        <span className="text-4xl font-bold text-emerald-600 tracking-tight">฿{calculatedTotalPrice.toLocaleString()}</span>
+                        <span className="text-4xl font-bold text-emerald-600 tracking-tight">฿{finalDisplayPrice.toLocaleString()}</span>
                         <span className="text-xs text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-full">Current</span>
                       </div>
                       <p className="text-xs text-apple-mutedText mt-3">Active monetary sum waiting for confirmation</p>
                     </div>
-
                   </div>
                 </section>
-
               </div>
             )}
 
-            {/* ================= VIEW 2: ORDER HISTORY VIEW ================= */}
+            {/* ================= VIEW 2: LOGS LIST ================= */}
             {currentView === 'history' && (
               <div className="max-w-[1020px] mx-auto space-y-6 fade-in">
-                
-                {/* Back to Workspace navigation bar */}
                 <div className="flex items-center justify-between pb-4 border-b border-apple-hairline">
                   <div className="flex items-center gap-3">
                     <button 
@@ -1200,13 +1291,13 @@
                     </button>
                     <div>
                       <h1 className="text-display-lg font-bold text-apple-ink tracking-tight">Order History Logs</h1>
-                      <p className="text-sm text-apple-mutedText">บันทึกประวัติการทำรายการสั่งซื้อที่ได้รับการยืนยันทั้งหมด</p>
+                      <p className="text-sm text-apple-mutedText">Detailed logs of all successfully processed and verified transactions</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => {
                       setOrderHistory([]);
-                      triggerToast("Session order logs cleared successfully", "fa-solid fa-circle-info text-yellow-500");
+                      triggerToast("Transaction logs cleared", "fa-solid fa-circle-info text-yellow-500");
                     }} 
                     className="text-xs bg-red-50 text-[#ff3b30] font-bold px-4 py-2.5 rounded-full hover:bg-red-100 transition-colors btn-active"
                   >
@@ -1214,14 +1305,12 @@
                   </button>
                 </div>
 
-                {/* List of successfully finalized orders */}
                 <div className="space-y-4">
                   {orderHistory.map((log, index) => (
                     <div 
                       key={index} 
                       className="bg-white border border-apple-hairline rounded-[20px] p-6 shadow-sm hover:shadow-md transition-all space-y-4 relative overflow-hidden"
                     >
-                      {/* Left accent bar */}
                       <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-apple-primary"></div>
                       
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-apple-hairline pb-4 pl-2">
@@ -1236,7 +1325,6 @@
                         </div>
                       </div>
 
-                      {/* Display breakdown detail segments */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-2 text-sm">
                         <div className="bg-[#f5f5f7] p-4 rounded-xl space-y-1">
                           <span className="text-xs font-bold text-apple-mutedText uppercase tracking-wider block">Items Breakdown</span>
@@ -1256,27 +1344,24 @@
                         <i className="fa-solid fa-receipt text-3xl"></i>
                       </div>
                       <div>
-                        <h4 className="text-lg font-bold text-apple-ink">No Session Logs Found</h4>
-                        <p className="text-sm text-apple-mutedText max-w-[320px] mx-auto mt-1">Please construct and confirm your orders in the workspace to see records here.</p>
+                        <h4 className="text-lg font-bold text-apple-ink">No Logs Registered</h4>
+                        <p className="text-sm text-apple-mutedText max-w-[320px] mx-auto mt-1">Please construct and confirm orders in the workspace tab to populate this sheet.</p>
                       </div>
                       <button 
                         onClick={() => navigateToView('home')} 
                         className="bg-apple-primary text-white text-xs px-6 py-2.5 rounded-full font-semibold btn-active shadow-sm"
                       >
-                        Go to Workspace
+                        Return to Workspace
                       </button>
                     </div>
                   )}
                 </div>
-
               </div>
             )}
 
-            {/* ================= VIEW 3: INVENTORY REPORT VIEW ================= */}
+            {/* ================= VIEW 3: INVENTORY STOCKS ================= */}
             {currentView === 'inventory' && (
               <div className="max-w-[1020px] mx-auto space-y-6 fade-in">
-                
-                {/* Header segment with product counting metrics */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-apple-hairline">
                   <div className="flex items-center gap-3">
                     <button 
@@ -1286,19 +1371,18 @@
                       <i className="fa-solid fa-chevron-left text-sm"></i>
                     </button>
                     <div>
-                      <h1 className="text-display-lg font-bold text-apple-ink tracking-tight">Inventory & Stock Controls</h1>
-                      <p className="text-sm text-apple-mutedText">แสดง 1 รายการต่อ 1 แถว • ค้นหาและปรับแต่งค่าสต็อกสินค้า</p>
+                      <h1 className="text-display-lg font-bold text-apple-ink tracking-tight">Inventory Stock Control</h1>
+                      <p className="text-sm text-apple-mutedText">Showing 1 item per row • Search and adjust database stock</p>
                     </div>
                   </div>
                   
-                  {/* Realtime database search input */}
                   <div className="relative w-full md:w-80">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-apple-mutedText">
                       <i className="fa-solid fa-magnifying-glass"></i>
                     </span>
                     <input 
                       type="text" 
-                      placeholder="Search SKU or product name..."
+                      placeholder="Search SKU or Product Name..."
                       value={inventorySearchQuery}
                       onChange={(e) => setInventorySearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 bg-white border border-apple-hairline rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-apple-primary text-apple-ink transition-all"
@@ -1306,27 +1390,26 @@
                   </div>
                 </div>
 
-                {/* Stock status counters summary strip */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="bg-white border border-apple-hairline p-4 rounded-2xl">
-                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Active Catalog SKUs</span>
+                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Active SKUs</span>
                     <span className="text-2xl font-extrabold text-apple-ink block mt-1">{products.filter(p => p.isActive).length}</span>
                   </div>
                   <div className="bg-white border border-apple-hairline p-4 rounded-2xl">
-                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Inactive Catalog SKUs</span>
+                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Inactive SKUs</span>
                     <span className="text-2xl font-extrabold text-[#ff3b30] block mt-1">{products.filter(p => !p.isActive).length}</span>
                   </div>
                   <div className="bg-white border border-apple-hairline p-4 rounded-2xl">
-                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Total System Items count</span>
+                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Total Warehouse Vol</span>
                     <span className="text-2xl font-extrabold text-apple-ink block mt-1">{products.reduce((acc, p) => acc + p.stock, 0).toLocaleString()}</span>
                   </div>
                   <div className="bg-white border border-apple-hairline p-4 rounded-2xl col-span-2 sm:col-span-1">
-                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Average Level</span>
+                    <span className="text-[10px] font-bold text-apple-mutedText uppercase block">Average Stock Level</span>
                     <span className="text-2xl font-extrabold text-apple-primary block mt-1">104 PCS</span>
                   </div>
                 </div>
 
-                {/* Detailed item inventory grid (rendered exactly one complete product per row) */}
+                {/* Database products list adjustment */}
                 <div className="space-y-2 pb-12">
                   {products
                     .filter(p => 
@@ -1344,7 +1427,7 @@
                           <img 
                             src={prod.image} 
                             alt={prod.name} 
-                            className="w-14 h-14 object-cover rounded-xl bg-apple-parchment border border-apple-hairline shadow-sm shrink-0 font-mono" 
+                            className="w-14 h-14 object-cover rounded-xl bg-apple-parchment border border-apple-hairline shadow-sm shrink-0" 
                           />
                           <div className="truncate">
                             <div className="flex items-center gap-2">
@@ -1356,18 +1439,15 @@
                               </span>
                             </div>
                             <h4 className="text-base font-bold text-apple-ink truncate mt-1">{prod.name}</h4>
-                            <p className="text-xs text-apple-mutedText">Current stock counts: <span className="font-bold text-apple-ink">{prod.stock} items available</span></p>
+                            <p className="text-xs text-apple-mutedText">Current stock counts: <span className="font-bold text-apple-ink">{prod.stock} units available</span></p>
                           </div>
                         </div>
 
-                        {/* Interactive stock adjuster and switcher switches */}
+                        {/* Adjuster controls */}
                         <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0">
-                          
-                          {/* Left adjustment buttons block */}
                           <div className="flex items-center gap-1">
                             <span className="text-xs text-apple-mutedText font-semibold mr-1.5">Adjust Stock:</span>
                             
-                            {/* Fine adjustment +/- 1 unit as requested */}
                             <button 
                               onClick={() => handleUpdateStock(prod.id, -1)}
                               className="w-8 h-8 rounded-full bg-apple-parchment border border-apple-hairline text-apple-ink font-semibold flex items-center justify-center hover:bg-[#e8e8ed] btn-active"
@@ -1384,7 +1464,6 @@
                               +1
                             </button>
 
-                            {/* Rapid stock adjust shortcuts (5 counts increments) */}
                             <div className="flex gap-1 ml-2 pl-2 border-l border-apple-hairline">
                               <button 
                                 onClick={() => handleUpdateStock(prod.id, -5)}
@@ -1403,7 +1482,7 @@
                             </div>
                           </div>
 
-                          {/* Catalog Switch Toggle */}
+                          {/* Toggle switches */}
                           <div className="flex items-center gap-2 pl-4 border-l border-apple-hairline">
                             <span className="text-xs font-semibold text-apple-mutedText">Catalog display:</span>
                             <button
@@ -1419,20 +1498,16 @@
                               />
                             </button>
                           </div>
-
                         </div>
                       </div>
                     ))}
                 </div>
-
               </div>
             )}
 
-            {/* ================= VIEW 4: FINANCIAL SUMMARY VIEW ================= */}
+            {/* ================= VIEW 4: FINANCIAL SIMULATION ================= */}
             {currentView === 'financial' && (
               <div className="max-w-[1020px] mx-auto space-y-6 fade-in">
-                
-                {/* Back to Workspace button */}
                 <div className="flex items-center gap-3 pb-4 border-b border-apple-hairline">
                   <button 
                     onClick={() => navigateToView('home')}
@@ -1442,24 +1517,22 @@
                   </button>
                   <div>
                     <h1 className="text-display-lg font-bold text-apple-ink tracking-tight">Financial Summary</h1>
-                    <p className="text-sm text-apple-mutedText">ระบบวิเคราะห์งบประมาณและสรุปรายรับรายจ่ายบริษัท</p>
+                    <p className="text-sm text-apple-mutedText font-medium">Analytical overview of corporate budget, operational costs, and revenues</p>
                   </div>
                 </div>
 
-                {/* Premium placeholder representation card */}
                 <div className="bg-white border border-apple-hairline rounded-[24px] p-10 md:p-16 text-center space-y-6 max-w-[700px] mx-auto">
                   <div className="w-20 h-20 bg-apple-primary/10 rounded-full flex items-center justify-center text-apple-primary mx-auto">
                     <i className="fa-solid fa-chart-line text-4xl"></i>
                   </div>
                   <div className="space-y-2">
-                    <span className="text-xs bg-apple-primary/10 text-apple-primary font-bold px-3 py-1 rounded-full uppercase tracking-widest">Premium Feature Under Construction</span>
-                    <h2 className="text-3xl font-extrabold text-apple-ink tracking-tight">ฟังก์ชันสรุปการเงิน & รายจ่าย</h2>
+                    <span className="text-xs bg-apple-primary/10 text-apple-primary font-bold px-3 py-1 rounded-full uppercase tracking-widest">Premium Feature Simulated</span>
+                    <h2 className="text-3xl font-extrabold text-apple-ink tracking-tight">Analytical Metrics</h2>
                     <p className="text-sm text-apple-mutedText leading-relaxed">
-                      ฟังก์ชันสรุปการเงิน ระบบสถิติกำไรและต้นทุนสินค้า Drpopshop กำลังอยู่ในขั้นตอนทดสอบระบบประมวลผลสถิติแบบ Real-time API
+                      Financial summaries, profit analytics, and cost metrics are currently undergoing real-time API simulation tests.
                     </p>
                   </div>
 
-                  {/* Premium mock statistics visualization cards */}
                   <div className="grid grid-cols-2 gap-4 text-left">
                     <div className="bg-apple-parchment p-4 rounded-xl border border-apple-hairline/80">
                       <span className="text-xs font-bold text-apple-mutedText block uppercase">Calculated Gross Revenue</span>
@@ -1478,15 +1551,12 @@
                     Back to Workspace
                   </button>
                 </div>
-
               </div>
             )}
 
-            {/* ================= VIEW 5: SALES SUMMARY VIEW ================= */}
+            {/* ================= VIEW 5: SALES REPORT SIMULATION ================= */}
             {currentView === 'sales' && (
               <div className="max-w-[1020px] mx-auto space-y-6 fade-in">
-                
-                {/* Back to Workspace button */}
                 <div className="flex items-center gap-3 pb-4 border-b border-apple-hairline">
                   <button 
                     onClick={() => navigateToView('home')}
@@ -1495,12 +1565,11 @@
                     <i className="fa-solid fa-chevron-left text-sm"></i>
                   </button>
                   <div>
-                    <h1 className="text-display-lg font-bold text-apple-ink tracking-tight">Sales Analytics Performance</h1>
-                    <p className="text-sm text-apple-mutedText">วิเคราะห์ประสิทธิภาพยอดจำหน่ายผลิตภัณฑ์ขายดี</p>
+                    <h1 className="text-display-lg font-bold text-apple-ink tracking-tight">Sales Performance</h1>
+                    <p className="text-sm text-apple-mutedText">Analyze performance of best-selling products and variants</p>
                   </div>
                 </div>
 
-                {/* Premium placeholder block card matching financial view style */}
                 <div className="bg-apple-tileDark text-white rounded-[24px] p-10 md:p-16 text-center space-y-6 max-w-[700px] mx-auto relative overflow-hidden">
                   <div className="absolute top-0 right-0 h-32 w-32 bg-white/5 rounded-full blur-2xl"></div>
                   
@@ -1508,21 +1577,20 @@
                     <i className="fa-solid fa-magnifying-glass-chart text-4xl animate-pulse"></i>
                   </div>
                   <div className="space-y-2 relative z-10">
-                    <span className="text-xs bg-white/15 text-apple-skyLinkBlue font-bold px-3 py-1 rounded-full uppercase tracking-widest">Coming Soon Dashboard</span>
-                    <h2 className="text-3xl font-extrabold text-white tracking-tight">วิเคราะห์กลุ่มเป้าหมาย & ยอดขาย</h2>
+                    <span className="text-xs bg-white/15 text-apple-skyLinkBlue font-bold px-3 py-1 rounded-full uppercase tracking-widest">Development Phase Only</span>
+                    <h2 className="text-3xl font-extrabold text-white tracking-tight">Target Audience Projection</h2>
                     <p className="text-sm text-white/70 leading-relaxed">
-                      ฟังก์ชันสรุปยอดขาย ประเมินยอดสั่งซื้อสำเร็จ และเปรียบเทียบสถิติยอดจำหน่ายรายเดือน กำลังเตรียมเปิดให้บริการในระบบเฟสถัดไป
+                      Sales forecasting, completed transaction analytics, and monthly comparative reports will be available in the next release phase.
                     </p>
                   </div>
 
-                  {/* Mock analytics visuals */}
                   <div className="grid grid-cols-2 gap-4 text-left relative z-10">
                     <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                      <span className="text-xs font-bold text-[#a1a1a6] block uppercase">Monthly Target Goal Achievement</span>
+                      <span className="text-xs font-bold text-[#a1a1a6] block uppercase">Target Goal Achievement</span>
                       <span className="text-xl font-bold text-white block mt-1">74.5% Complete</span>
                     </div>
                     <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                      <span className="text-xs font-bold text-[#a1a1a6] block uppercase">Connected Session speed</span>
+                      <span className="text-xs font-bold text-[#a1a1a6] block uppercase">Response Speeds</span>
                       <span className="text-xl font-bold text-apple-skyLinkBlue block mt-1">0.12s Cached</span>
                     </div>
                   </div>
@@ -1534,13 +1602,12 @@
                     Back to Workspace
                   </button>
                 </div>
-
               </div>
             )}
 
           </main>
 
-          {/* Footer branding */}
+          {/* Footer bar */}
           <footer className="max-w-[1020px] mx-auto px-4 py-12 border-t border-apple-hairline flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-apple-mutedText">
             <div className="flex items-center gap-2">
               <span className="font-bold text-apple-ink">Drpopshop Order Terminal © 2026</span>
